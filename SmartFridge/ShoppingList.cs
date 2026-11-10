@@ -23,11 +23,34 @@ namespace SmartFridge
             double sum = 0;
             foreach (var item in Items)
             {
-                TotalCost += item.Value * ItemPrices[item.Key];
+                if (ItemPrices.TryGetValue(item.Key, out double price))
+                    sum += item.Value * price;
             }
-
-
+            TotalCost = sum;
             return sum;
+        }
+        
+        public void AddToList(string itemName, int quantity)
+        {
+            if (Items.ContainsKey(itemName))
+            {
+                Items[itemName] += quantity;
+            }
+            else
+            {
+                Items.Add(itemName, quantity);
+            }
+        }
+        public void RemoveFromList(string itemName)
+        {
+            if (Items.ContainsKey(itemName))
+            {
+                Items.Remove(itemName);
+            }
+            else
+            {
+                Console.WriteLine("Item not found in shopping list.");
+            }
         }
     }
 }
