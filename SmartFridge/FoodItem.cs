@@ -13,7 +13,7 @@ public enum FoodCategory
     Other
 }
 
-namespace SmartFridge
+namespace SmartFridgeProj
 {
     internal class FoodItem : Item
     {

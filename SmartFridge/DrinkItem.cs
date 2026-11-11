@@ -8,7 +8,7 @@ public enum DrinkCategory
     Juice,//מיצים
     Other
 }
-namespace SmartFridge
+namespace SmartFridgeProj
 {
     internal class DrinkItem : Item
     {

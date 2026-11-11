@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace SmartFridge
+namespace SmartFridgeProj
 {
     public enum Diets
     {
