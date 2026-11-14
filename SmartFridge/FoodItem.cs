@@ -2,19 +2,20 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Xml.Linq;
-public enum FoodCategory
-{
-    Dairy,
-    Meat,
-    Vegetables,
-    Fruits,
-    Bakery,
-    Frozen,
-    Other
-}
+
 
 namespace SmartFridgeProj
 {
+    public enum FoodCategory
+    {
+        Dairy,
+        Meat,
+        Vegetables,
+        Fruits,
+        Bakery,
+        Frozen,
+        Other
+    }
     internal class FoodItem : Item
     {
         public FoodCategory Category { get; set; }

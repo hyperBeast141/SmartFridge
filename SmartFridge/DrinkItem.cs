@@ -1,15 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-public enum DrinkCategory
-{
-    Dairy,
-    Soda,//שתייה קלה
-    Juice,//מיצים
-    Other
-}
+
 namespace SmartFridgeProj
 {
+    public enum DrinkCategory
+    {
+        Dairy,
+        Soda,//שתייה קלה
+        Juice,//מיצים
+        Other
+    }
     internal class DrinkItem : Item
     {
         public DrinkCategory Category { get; set; }

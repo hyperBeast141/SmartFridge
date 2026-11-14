@@ -27,7 +27,7 @@ namespace SmartFridgeProj
             Diet = diet;
             FavoriteItems = new List<Item>();
             Reminders = new List<Reminder>();
-            Notes = new Dictionary<string, string>();
+            Notes = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
         }
         public void AddFavorite(Item item)
         {
@@ -59,20 +59,23 @@ namespace SmartFridgeProj
             Reminders.Remove(reminder);
 
         }
+        public List<Reminder> GetDueReminders()
+        {
+            return Reminders.FindAll(r => r.ReminderDate.Date <= DateTime.Today);
+        }
         public void DisplayReminder()
         {
             foreach (var reminder in Reminders)
             {
-                Console.WriteLine(reminder.Title);
-                Console.WriteLine($"Description:{reminder.Description}");
-                Console.WriteLine($"Date: {reminder.ReminderDate}");
-                if(reminder.RelatedItem != null)
-                    Console.WriteLine($"Related Item{reminder.RelatedItem}");
+                Console.WriteLine($"Description: {reminder.Description}");
+                Console.WriteLine($"Date: {reminder.ReminderDate:dd/MM/yyyy}");
+                if (reminder.RelatedItem != null)
+                    Console.WriteLine($"Related item: {reminder.RelatedItem.Name}");
             }
         }
         public void AddNote(string itemName, string note)
         {
-            Notes.Add(itemName, note);
+            Notes[itemName] = note;
         }
         public string GetNote(string itemName)
         {
@@ -84,5 +87,19 @@ namespace SmartFridgeProj
             return "No note found for this item.";
         }
 
+        public string? GetDietWarning(Item item)
+        {
+            bool isMeat = item is FoodItem food && food.Category == FoodCategory.Meat;
+            bool isDairy = (item is FoodItem f2 && f2.Category == FoodCategory.Dairy)
+                        || (item is DrinkItem drink && drink.Category == DrinkCategory.Dairy);
+
+            if (Diet == Diets.Vegetarian && isMeat)
+                return $"{item.Name} contains meat, but your diet is Vegetarian.";
+            if (Diet == Diets.Vegan && (isMeat || isDairy))
+                return $"{item.Name} is not vegan.";
+            if (Diet == Diets.DairyFree && isDairy)
+                return $"{item.Name} contains dairy, but your diet is Dairy-free.";
+            return null;
+        }
     }
 }

@@ -14,8 +14,8 @@ namespace SmartFridgeProj
 
         public ShoppingList()
         {
-            Items = new Dictionary<string, int>();
-            ItemPrices = new Dictionary<string, double>();
+            Items = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+            ItemPrices = new Dictionary<string, double>(StringComparer.OrdinalIgnoreCase);
         }
 
         public double CalculateTotalCost()

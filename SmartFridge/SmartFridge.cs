@@ -12,6 +12,9 @@ namespace SmartFridgeProj
         public ExpirationManager ExpirationManager { get; set; }
         public ShoppingList ShoppingList { get; set; }
         public UserProfile UserProfile { get; set; }
+        public Dictionary<string, double> PriceList { get; }
+
+        public int TotalQuantity => Items.Sum(i => i.Quantity);
 
         public SmartFridge(int maxCapacity, UserProfile userProfile)
         {
@@ -23,18 +26,34 @@ namespace SmartFridgeProj
             Items = new List<Item>();
             ShoppingList = new ShoppingList();
             ExpirationManager = new ExpirationManager();
-            ExpirationManager.Items = Items;   //  לא עותק
+            ExpirationManager.Items = Items;   //  אותה רשימה, לא עותק
+            PriceList = new Dictionary<string, double>(StringComparer.OrdinalIgnoreCase);
         }
         public void AddItem(Item item)
         {
-            Items.Add(item);
+            if (item == null) throw new ArgumentException("Item cannot be null.");
+            if(TotalQuantity + item.Quantity > MaxCapacity)
+                throw new InvalidOperationException($"Not enough room. Free space: {MaxCapacity - TotalQuantity}.");
+
+            Item? existing = FindItem(item.Name);
+
+            if(existing != null)
+            {
+                existing.Quantity += item.Quantity;
+                existing.ExpirationDate = item.ExpirationDate;
+                existing.Price = item.Price;
+            }
+            else
+            {
+                Items.Add(item);
+            }
         }
         public bool RemoveItem(string itemName, int quantity)
         {
             if (quantity <= 0)
                 throw new ArgumentException("Quantity must be positive.");
 
-            Item? item = Items.Find(i => i.Name == itemName);
+            Item? item = FindItem(itemName);
 
             if (item == null)
                 throw new InvalidOperationException($"{itemName} not found in fridge.");
@@ -47,12 +66,17 @@ namespace SmartFridgeProj
             return true;
         }
 
+        public Item? FindItem(string itemName)
+        {
+            return Items.Find(i => string.Equals(i.Name, itemName, StringComparison.OrdinalIgnoreCase));
+        }
+
         public void ReturnItem(string itemName, int quantity)
         {
             if (quantity <= 0)
                 throw new ArgumentException("Quantity must be positive.");
 
-            Item? item = Items.Find(i => i.Name == itemName);
+            Item? item = FindItem(itemName);
 
             if (item == null)
                 throw new InvalidOperationException($"{itemName} not found in fridge.");
@@ -68,7 +92,31 @@ namespace SmartFridgeProj
         }
         public bool IsFull()
         {
-            return Items.Sum(item => item.Quantity) >= MaxCapacity;
+            return TotalQuantity >= MaxCapacity;
         }
+
+        public ShoppingList BuildShoppingList(Dictionary<string,int> wanted)
+        {
+            var list = new ShoppingList();
+            foreach (var kv in wanted)
+            {
+                Item? existing = FindItem(kv.Key);
+                int missing = kv.Value - (existing?.Quantity ?? 0);
+                if (missing <= 0) continue;
+
+                list.AddToList(kv.Key, missing);
+
+                if (PriceList.TryGetValue(kv.Key, out double price))
+                    list.ItemPrices[kv.Key] = price;
+                else if (existing != null)
+                    list.ItemPrices[kv.Key] = existing.Price;
+            }
+            list.CalculateTotalCost();
+            ShoppingList = list;
+            return list;
+            
+            }
+        }
+
     }
-}
+
